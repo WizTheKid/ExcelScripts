@@ -1,1 +1,67 @@
+function main(workbook: ExcelScript.Workbook) {
+    // Get the active worksheet and used range.
+    let selectedCell = workbook.getActiveCell();
+    let selectedSheet = workbook.getActiveWorksheet();
 
+    // Find the used range in the active sheet.
+    let usedRange = selectedSheet.getUsedRange();
+
+    // Get the values from the used range.
+    let values = usedRange.getValues();
+    let rowCount = 0;
+    // Create a new worksheet.
+
+    let newSheet = workbook.addWorksheet("Sheet1");
+
+    // Copy the header row to the new worksheet.
+    //newSheet.getRange("A1:H1").setValues([values[0]]);
+
+    // Filter and copy the rows based on the "Name" column.    
+    for (let i = 1; i < values.length; i++) {
+        let name = values[i][1]; // Assuming "Name" column is the second column (index 1) 
+      if (name.toString().includes("Circle") === false || name.toString().includes("Line") === false || name.toString().includes("Surface") === false){
+        if (values[i][2].toString().includes("Center.z") === true || values[i][2].toString().includes("LZ") === true) {
+          newSheet.getCell(rowCount, 0).setValue('=PROPER("' + name + '_Z")')
+          newSheet.getCell(rowCount, 1).setValue(values[i][3])
+          newSheet.getCell(rowCount, 1).setNumberFormat("0.000");
+          newSheet.getCell(rowCount, 2).setValue("mm")
+          rowCount = rowCount + 1;
+        }
+        if (values[i][2].toString().includes("Center.x") === true) {
+          newSheet.getCell(rowCount, 0).setValue('=PROPER("' + name + '_X")')
+          newSheet.getCell(rowCount, 1).setValue(values[i][3])
+          newSheet.getCell(rowCount, 1).setNumberFormat("0.000");
+          newSheet.getCell(rowCount, 2).setValue("mm")
+          rowCount = rowCount + 1;
+        }
+        if (values[i][2].toString().includes("Center.y") === true) {
+          newSheet.getCell(rowCount, 0).setValue('=PROPER("' + name + '_Y")')
+          newSheet.getCell(rowCount, 1).setValue(values[i][3])
+          newSheet.getCell(rowCount, 1).setNumberFormat("0.000");
+          newSheet.getCell(rowCount, 2).setValue("mm")
+          rowCount = rowCount + 1;
+        }
+        if (values[i][2].toString().includes("Diameter") === true) {
+          newSheet.getCell(rowCount, 0).setValue('=PROPER("' + name + '_Dia")')
+          newSheet.getCell(rowCount, 1).setValue(values[i][3])
+          newSheet.getCell(rowCount, 1).setNumberFormat("0.000");
+          newSheet.getCell(rowCount, 2).setValue("mm")
+          rowCount = rowCount + 1;
+        }    
+      }            
+                
+        
+    }
+
+    let newValues = newSheet.getUsedRange().getValues();
+    for (let i = 1; i < newValues.length; i++) {
+        let bNumber = newSheet.getCell(i, 1).getValue();
+        if (bNumber < 0) {
+            newSheet.getCell(i, 3).setValue("NEGATIVE VALUE;");
+            newSheet.getCell(i, 1).setValue("=ABS(" + newSheet.getCell(i, 1).getValue() + ")")
+        }
+        console.log(bNumber);
+    }
+
+    newSheet.activate();
+}
